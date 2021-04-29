@@ -64,8 +64,25 @@ int FAST_FUNC d6_read_interface(const char *interface, int *ifindex, struct in6_
 
 	if (retval & (1<<0))
 		bb_error_msg("can't get %s", "MAC");
-	if (retval & (1<<1))
-		bb_error_msg("can't get %s", "link-local IPv6 address");
+	if (retval & (1<<1)) {
+		nip6->s6_addr[15] = mac[5];
+		nip6->s6_addr[14] = mac[4];
+		nip6->s6_addr[13] = mac[3];
+		nip6->s6_addr[12] = 0xFE;
+		nip6->s6_addr[11] = 0xFF;
+		nip6->s6_addr[10] = mac[2];
+		nip6->s6_addr[9] = mac[1];
+		nip6->s6_addr[8] = mac[0] & (1<<2) ? mac[0] & ~(1<<2): mac[0] | (1<<2);
+		nip6->s6_addr[7] = 0x00;
+		nip6->s6_addr[6] = 0x00;
+		nip6->s6_addr[5] = 0x00;
+		nip6->s6_addr[4] = 0x00;
+		nip6->s6_addr[3] = 0x00;
+		nip6->s6_addr[2] = 0x00;
+		nip6->s6_addr[1] = 0x80;
+		nip6->s6_addr[0] = 0xFE;
+	}
+
 	return -1;
 }
 
